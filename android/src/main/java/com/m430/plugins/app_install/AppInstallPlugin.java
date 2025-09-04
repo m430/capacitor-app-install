@@ -50,39 +50,59 @@ public class AppInstallPlugin extends Plugin {
 
     @PluginMethod
     public void installApk(PluginCall call) {
-        String filePath = call.getString("filePath");
-        if (filePath == null || filePath.isEmpty()) {
-            call.reject("File path is required");
-            return;
-        }
-
         try {
-            File file = new File(filePath);
-            if (!file.exists()) {
-                call.reject("File does not exist: " + filePath);
+            String filePath = call.getString("filePath");
+            if (filePath == null || filePath.isEmpty()) {
+                call.reject("File path is required");
                 return;
             }
 
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            Uri fileUri;
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                // Use FileProvider for Android 7.0 and above
-                String authority = getContext().getPackageName() + ".fileprovider";
-                fileUri = FileProvider.getUriForFile(getContext(), authority, file);
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            } else {
-                // Direct file URI for older versions
-                fileUri = Uri.fromFile(file);
+            // 处理file:// URI格式的路径
+            String actualFilePath = filePath;
+            if (filePath.startsWith("file://")) {
+                actualFilePath = Uri.parse(filePath).getPath();
             }
 
-            intent.setDataAndType(fileUri, "application/vnd.android.package-archive");
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            // 检查文件是否存在
+            File apkFile = new File(actualFilePath);
+            if (!apkFile.exists()) {
+                call.reject("APK file does not exist: " + actualFilePath);
+                return;
+            }
 
-            getContext().startActivity(intent);
-            call.resolve();
+            // 检查安装权限
+            if (!canInstallUnknownAppsInternal()) {
+                call.reject("Install unknown apps permission is required");
+                return;
+            }
+
+            Intent intent;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                // Android 7.0+ 使用 FileProvider
+                Uri apkUri = FileProvider.getUriForFile(
+                        getContext(),
+                        getContext().getPackageName() + ".fileprovider",
+                        apkFile);
+                intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+                intent.setData(apkUri);
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            } else {
+                // Android 7.0 以下使用 file:// URI
+                Uri apkUri = Uri.fromFile(apkFile);
+                intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            }
+
+            getActivity().startActivity(intent);
+
+            JSObject ret = new JSObject();
+            ret.put("completed", true);
+            ret.put("message", "APK installation started");
+            call.resolve(ret);
+
         } catch (Exception e) {
-            call.reject("Error installing APK: " + e.getMessage());
+            call.reject("Failed to install APK", e);
         }
     }
 
