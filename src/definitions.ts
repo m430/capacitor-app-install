@@ -19,6 +19,17 @@ export interface PermissionResult {
   granted: boolean;
 }
 
+export interface InstallApkResult {
+  /**
+   * Whether the installation was completed successfully
+   */
+  completed: boolean;
+  /**
+   * Message describing the installation result
+   */
+  message: string;
+}
+
 export interface AppInstallPlugin {
   /**
    * Check if the app can install unknown apps (install from unknown sources)
@@ -35,7 +46,7 @@ export interface AppInstallPlugin {
   /**
    * Install an APK file
    * @param options - The options containing the file path
-   * @returns Promise<void>
+   * @returns Promise<InstallApkResult>
    */
-  installApk(options: InstallApkOptions): Promise<void>;
+  installApk(options: InstallApkOptions): Promise<InstallApkResult>;
 }

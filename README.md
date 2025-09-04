@@ -74,10 +74,13 @@ if (!granted) {
 
 // Install APK
 try {
-  await AppInstallPlugin.installApk({
+  const result = await AppInstallPlugin.installApk({
     filePath: '/path/to/your/app.apk'
   });
-  console.log('APK installation started');
+  console.log('Installation result:', result.message);
+  if (result.completed) {
+    console.log('APK installation started successfully');
+  }
 } catch (error) {
   console.error('Failed to install APK:', error);
 }
@@ -124,7 +127,7 @@ Open the settings page for installing unknown apps
 ### installApk(...)
 
 ```typescript
-installApk(options: InstallApkOptions) => Promise<void>
+installApk(options: InstallApkOptions) => Promise<InstallApkResult>
 ```
 
 Install an APK file
@@ -132,6 +135,8 @@ Install an APK file
 | Param         | Type                                                            | Description                            |
 | ------------- | --------------------------------------------------------------- | -------------------------------------- |
 | **`options`** | <code><a href="#installapkoptions">InstallApkOptions</a></code> | - The options containing the file path |
+
+**Returns:** <code>Promise&lt;<a href="#installapkresult">InstallApkResult</a>&gt;</code>
 
 --------------------
 
@@ -144,6 +149,14 @@ Install an APK file
 | Prop          | Type                 | Description                       |
 | ------------- | -------------------- | --------------------------------- |
 | **`granted`** | <code>boolean</code> | Whether the permission is granted |
+
+
+#### InstallApkResult
+
+| Prop            | Type                 | Description                                    |
+| --------------- | -------------------- | ---------------------------------------------- |
+| **`completed`** | <code>boolean</code> | Whether the installation was completed successfully |
+| **`message`**   | <code>string</code>  | Message describing the installation result     |
 
 
 #### InstallApkOptions

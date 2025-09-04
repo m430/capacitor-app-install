@@ -1,6 +1,6 @@
 {
   "name": "@m430/capacitor-app-install",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Capacitor plugin for APK installation and permission management - Android only (Web and iOS not supported)",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
