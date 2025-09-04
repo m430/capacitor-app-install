@@ -1,10 +1,16 @@
 import { registerPlugin } from '@capacitor/core';
 
-import type { AppUpdaterPluginPlugin } from './definitions';
+import type { AppInstallPlugin } from './definitions';
 
-const AppUpdaterPlugin = registerPlugin<AppUpdaterPluginPlugin>('AppUpdaterPlugin', {
-  web: () => import('./web').then((m) => new m.AppUpdaterPluginWeb()),
+/**
+ * Capacitor App Install Plugin
+ *
+ * ⚠️ Platform Support: This plugin only supports Android.
+ * Web platform registration is required by Capacitor architecture but will throw errors.
+ */
+const AppInstall = registerPlugin<AppInstallPlugin>('AppInstallPlugin', {
+  web: () => import('./web').then((m) => new m.AppInstallPluginWeb()),
 });
 
 export * from './definitions';
-export { AppUpdaterPlugin };
+export { AppInstall as AppInstallPlugin };

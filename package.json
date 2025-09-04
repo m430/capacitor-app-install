@@ -1,7 +1,7 @@
 {
-  "name": "@m430/capacitor-app-updater",
+  "name": "@m430/capacitor-app-install",
   "version": "0.0.1",
-  "description": "Capacitor application update plugin (Android only)",
+  "description": "Capacitor plugin for APK installation and permission management - Android only (Web and iOS not supported)",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -9,37 +9,36 @@
   "files": [
     "android/src/main/",
     "android/build.gradle",
-    "dist/",
-    "ios/Sources",
-    "ios/Tests",
-    "Package.swift",
-    "M430CapacitorAppUpdater.podspec"
+    "dist/"
   ],
   "author": "Andy Zheng",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/m430/capacitor-app-updater.git"
+    "url": "git+https://github.com/m430/capacitor-app-install.git"
   },
   "bugs": {
-    "url": "https://github.com/m430/capacitor-app-updater/issues"
+    "url": "https://github.com/m430/capacitor-app-install/issues"
   },
   "keywords": [
     "capacitor",
     "plugin",
-    "native"
+    "native",
+    "android",
+    "apk",
+    "install",
+    "app-install",
+    "permission"
   ],
   "scripts": {
-    "verify": "npm run verify:ios && npm run verify:android && npm run verify:web",
-    "verify:ios": "xcodebuild -scheme M430CapacitorAppUpdater -destination generic/platform=iOS",
+    "verify": "npm run verify:android && npm run verify:web",
     "verify:android": "cd android && ./gradlew clean build test && cd ..",
     "verify:web": "npm run build",
-    "lint": "npm run eslint && npm run prettier -- --check && npm run swiftlint -- lint",
-    "fmt": "npm run eslint -- --fix && npm run prettier -- --write && npm run swiftlint -- --fix --format",
+    "lint": "npm run eslint && npm run prettier -- --check",
+    "fmt": "npm run eslint -- --fix && npm run prettier -- --write",
     "eslint": "eslint . --ext ts",
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\" --plugin=prettier-plugin-java",
-    "swiftlint": "node-swiftlint",
-    "docgen": "docgen --api AppUpdaterPluginPlugin --output-readme README.md --output-json dist/docs.json",
+    "docgen": "docgen --api AppInstallPlugin --output-readme README.md --output-json dist/docs.json",
     "build": "npm run clean && npm run docgen && tsc && rollup -c rollup.config.mjs",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
@@ -70,9 +69,6 @@
     "extends": "@ionic/eslint-config/recommended"
   },
   "capacitor": {
-    "ios": {
-      "src": "ios"
-    },
     "android": {
       "src": "android"
     }

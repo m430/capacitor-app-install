@@ -11,14 +11,35 @@
   </head>
   <body>
     <main>
-      <h1>Capacitor Test Plugin Project</h1>
+      <h1>Capacitor App Install Plugin Test</h1>
       <p>
-        This project can be used to test out the functionality of your plugin. Nothing in the
-        <em>example-app/</em> folder will be published to npm when using this template, so you can create away!
+        This app tests the functionality of the capacitor-app-install plugin.
+        <strong>Note:</strong> This plugin only works on Android devices.
       </p>
-      <label for="echoInput">Echo Text:</label>
-      <input type="text" id="echoInput" name="echoInput" value="Hello World!" />
-      <button onclick="testEcho()">Click Me!</button>
+      
+      <div style="margin: 20px 0;">
+        <h3>Permission Tests</h3>
+        <button onclick="testCanInstallUnknownApps()">Check Unknown Apps Permission</button>
+        <button onclick="testFilePermission()">Check File Permission</button>
+      </div>
+      
+      <div style="margin: 20px 0;">
+        <h3>APK Installation Test</h3>
+        <label for="filePathInput">APK File Path:</label><br>
+        <input type="text" id="filePathInput" name="filePathInput" 
+               placeholder="/storage/emulated/0/Download/app.apk" 
+               style="width: 300px; margin: 5px 0;" /><br>
+        <button onclick="testInstallApk()">Install APK</button>
+      </div>
+      
+      <div style="margin: 20px 0; padding: 10px; background-color: #f0f0f0;">
+        <small>
+          <strong>Instructions:</strong><br>
+          1. Test on Android device only<br>
+          2. Check permissions first<br>
+          3. Provide valid APK file path for installation test
+        </small>
+      </div>
     </main>
 
     <script src="./js/example.js" type="module"></script>
