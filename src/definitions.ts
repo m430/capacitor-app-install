@@ -33,18 +33,6 @@ export interface AppInstallPlugin {
   openInstallUnknownAppsSettings(): Promise<void>;
 
   /**
-   * Check if the app has file read permission
-   * @returns Promise<PermissionResult>
-   */
-  hasFilePermission(): Promise<PermissionResult>;
-
-  /**
-   * Request file read permission
-   * @returns Promise<PermissionResult>
-   */
-  requestFilePermission(): Promise<PermissionResult>;
-
-  /**
    * Install an APK file
    * @param options - The options containing the file path
    * @returns Promise<void>

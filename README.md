@@ -8,8 +8,6 @@
 
 - ✅ Check install unknown apps permission
 - ✅ Open install unknown apps settings
-- ✅ Check file read permission
-- ✅ Request file read permission
 - ✅ Install APK files
 - ✅ Android only (Web and iOS platforms not supported)
 - ✅ TypeScript support
@@ -74,17 +72,6 @@ if (!granted) {
   await AppInstallPlugin.openInstallUnknownAppsSettings();
 }
 
-// Check file permission
-const filePermission = await AppInstallPlugin.hasFilePermission();
-if (!filePermission.granted) {
-  // Request file permission
-  const result = await AppInstallPlugin.requestFilePermission();
-  if (!result.granted) {
-    console.log('File permission denied');
-    return;
-  }
-}
-
 // Install APK
 try {
   await AppInstallPlugin.installApk({
@@ -102,8 +89,6 @@ try {
 
 * [`canInstallUnknownApps()`](#caninstallunknownapps)
 * [`openInstallUnknownAppsSettings()`](#openinstallunknownappssettings)
-* [`hasFilePermission()`](#hasfilepermission)
-* [`requestFilePermission()`](#requestfilepermission)
 * [`installApk(...)`](#installapk)
 * [Interfaces](#interfaces)
 
@@ -132,32 +117,6 @@ openInstallUnknownAppsSettings() => Promise<void>
 ```
 
 Open the settings page for installing unknown apps
-
---------------------
-
-
-### hasFilePermission()
-
-```typescript
-hasFilePermission() => Promise<PermissionResult>
-```
-
-Check if the app has file read permission
-
-**Returns:** <code>Promise&lt;<a href="#permissionresult">PermissionResult</a>&gt;</code>
-
---------------------
-
-
-### requestFilePermission()
-
-```typescript
-requestFilePermission() => Promise<PermissionResult>
-```
-
-Request file read permission
-
-**Returns:** <code>Promise&lt;<a href="#permissionresult">PermissionResult</a>&gt;</code>
 
 --------------------
 

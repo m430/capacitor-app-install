@@ -8,7 +8,6 @@ import android.os.Build;
 import android.provider.Settings;
 import androidx.core.content.FileProvider;
 import com.getcapacitor.JSObject;
-import com.getcapacitor.Logger;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
@@ -17,15 +16,9 @@ import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
 import java.io.File;
 
-@CapacitorPlugin(
-    name = "AppInstallPlugin",
-    permissions = {
-        @Permission(
-            strings = { Manifest.permission.READ_EXTERNAL_STORAGE },
-            alias = "storage"
-        )
-    }
-)
+@CapacitorPlugin(name = "AppInstallPlugin", permissions = {
+        @Permission(strings = { Manifest.permission.READ_EXTERNAL_STORAGE }, alias = "storage")
+})
 public class AppInstallPlugin extends Plugin {
 
     @Override
@@ -56,37 +49,6 @@ public class AppInstallPlugin extends Plugin {
     }
 
     @PluginMethod
-    public void hasFilePermission(PluginCall call) {
-        try {
-            boolean hasPermission = hasFilePermissionInternal();
-            JSObject ret = new JSObject();
-            ret.put("granted", hasPermission);
-            call.resolve(ret);
-        } catch (Exception e) {
-            call.reject("Error checking file permission: " + e.getMessage());
-        }
-    }
-
-    @PluginMethod
-    public void requestFilePermission(PluginCall call) {
-        if (hasFilePermissionInternal()) {
-            JSObject ret = new JSObject();
-            ret.put("granted", true);
-            call.resolve(ret);
-        } else {
-            requestPermissionForAlias("storage", call, "filePermissionCallback");
-        }
-    }
-
-    @PermissionCallback
-    private void filePermissionCallback(PluginCall call) {
-        boolean granted = hasFilePermissionInternal();
-        JSObject ret = new JSObject();
-        ret.put("granted", granted);
-        call.resolve(ret);
-    }
-
-    @PluginMethod
     public void installApk(PluginCall call) {
         String filePath = call.getString("filePath");
         if (filePath == null || filePath.isEmpty()) {
@@ -95,7 +57,29 @@ public class AppInstallPlugin extends Plugin {
         }
 
         try {
-            installApkInternal(filePath);
+            File file = new File(filePath);
+            if (!file.exists()) {
+                call.reject("File does not exist: " + filePath);
+                return;
+            }
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            Uri fileUri;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                // Use FileProvider for Android 7.0 and above
+                String authority = getContext().getPackageName() + ".fileprovider";
+                fileUri = FileProvider.getUriForFile(getContext(), authority, file);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            } else {
+                // Direct file URI for older versions
+                fileUri = Uri.fromFile(file);
+            }
+
+            intent.setDataAndType(fileUri, "application/vnd.android.package-archive");
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            getContext().startActivity(intent);
             call.resolve();
         } catch (Exception e) {
             call.reject("Error installing APK: " + e.getMessage());
@@ -129,40 +113,4 @@ public class AppInstallPlugin extends Plugin {
         }
     }
 
-    /**
-     * Check if the app has file read permission
-     */
-    private boolean hasFilePermissionInternal() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return getContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
-        }
-        return true; // For older versions, this permission is granted by default
-    }
-
-    /**
-     * Install an APK file
-     */
-    private void installApkInternal(String filePath) throws Exception {
-        File apkFile = new File(filePath);
-        if (!apkFile.exists()) {
-            throw new Exception("APK file does not exist: " + filePath);
-        }
-
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-        Uri apkUri;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            // Use FileProvider for Android 7.0+
-            apkUri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".fileprovider", apkFile);
-        } else {
-            apkUri = Uri.fromFile(apkFile);
-        }
-
-        intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
-        getContext().startActivity(intent);
-        
-        Logger.info("AppInstallPlugin", "Installing APK: " + filePath);
-    }
 }
